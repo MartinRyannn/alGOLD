@@ -21,6 +21,7 @@ Navigate to your System Settings to allow the installation:
 3. Scroll down until you see the message:
    > "run.command" was blocked from use because it is not from an identified developer
 4. Click "Open Anyway" to proceed
+   
    <img width="463" alt="Screenshot 2024-10-27 at 21 16 44" src="https://github.com/user-attachments/assets/b8fa4bae-a99c-4efa-9172-7ebed38d2ed7">
 
 ### 3. Terminal Setup
@@ -29,6 +30,7 @@ Navigate to your System Settings to allow the installation:
    - Account ID
    - Access Token
    - Account Type
+     
    <img width="565" alt="Screenshot 2024-10-27 at 21 18 37" src="https://github.com/user-attachments/assets/b4c432db-aa1d-4898-943f-4c2b7edd0e83">
 
 ### 4. Application Launch
