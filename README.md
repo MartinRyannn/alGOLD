@@ -1,4 +1,4 @@
-<img width="463" alt="Screenshot 2024-10-27 at 21 16 44" src="https://github.com/user-attachments/assets/110f0474-1e3e-4fc0-ad1a-e3f71160d9c5"># OANDA Trading Platform Setup Guide (macOS)
+# OANDA Trading Platform Setup Guide (macOS)
 
 ## Prerequisites
 - MacOS operating system
