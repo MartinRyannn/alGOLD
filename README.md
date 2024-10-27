@@ -1,4 +1,4 @@
-# OANDA Trading Platform Setup Guide (macOS)
+<img width="463" alt="Screenshot 2024-10-27 at 21 16 44" src="https://github.com/user-attachments/assets/110f0474-1e3e-4fc0-ad1a-e3f71160d9c5"># OANDA Trading Platform Setup Guide (macOS)
 
 ## Prerequisites
 - MacOS operating system
@@ -17,6 +17,10 @@ Navigate to your System Settings to allow the installation:
 3. Scroll down until you see the message:
    > "run.command" was blocked from use because it is not from an identified developer
 4. Click "Open Anyway" to proceed
+   <img width="260" alt="Screenshot 2024-10-27 at 21 14 44" src="https://github.com/user-attachments/assets/33f61ebf-4154-41f0-abce-375ec613974a">
+
+   <img width="463" alt="Screenshot 2024-10-27 at 21 16 44" src="https://github.com/user-attachments/assets/b8fa4bae-a99c-4efa-9172-7ebed38d2ed7">
+
 
 ### 2. Terminal Setup
 1. The Terminal will open automatically
@@ -24,6 +28,8 @@ Navigate to your System Settings to allow the installation:
    - Account ID
    - Access Token
    - Account Type
+   <img width="565" alt="Screenshot 2024-10-27 at 21 18 37" src="https://github.com/user-attachments/assets/b4c432db-aa1d-4898-943f-4c2b7edd0e83">
+
 
 ### 3. Application Launch
 1. The installation process will begin automatically
