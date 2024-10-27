@@ -17,7 +17,6 @@ Navigate to your System Settings to allow the installation:
 3. Scroll down until you see the message:
    > "run.command" was blocked from use because it is not from an identified developer
 4. Click "Open Anyway" to proceed
-   <img width="260" alt="Screenshot 2024-10-27 at 21 14 44" src="https://github.com/user-attachments/assets/33f61ebf-4154-41f0-abce-375ec613974a">
 
    <img width="463" alt="Screenshot 2024-10-27 at 21 16 44" src="https://github.com/user-attachments/assets/b8fa4bae-a99c-4efa-9172-7ebed38d2ed7">
 
