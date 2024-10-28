@@ -1,17 +1,26 @@
 import oandapyV20
 import oandapyV20.endpoints.transactions as trans
+import configparser
+import os
 
-# Define your OANDA credentials
-accountID = "101-011-29517098-001"
-access_token = "42f110c2d99aee8e029b112fb90def99-0c621211f1009bac68c51ff13b2202f3"
-
-# Initialize OANDA API client
-client = oandapyV20.API(access_token=access_token)
-
-def get_last_transaction_id(accountID):
-    """Function to get the last transaction ID from the transaction history"""
-    r = trans.TransactionList(accountID)
+def load_config():
+    """Function to load OANDA credentials from config file"""
+    config = configparser.ConfigParser()
+    config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "oanda.cfg")
+    config.read(config_file)
     
+    return {
+        "account_id": config['oanda']['account_id'],
+        "access_token": config['oanda']['access_token']
+    }
+
+# Initialize OANDA API client with credentials from config
+credentials = load_config()
+client = oandapyV20.API(access_token=credentials['access_token'])
+
+def get_last_transaction_id(account_id):
+    """Function to get the last transaction ID from the transaction history"""
+    r = trans.TransactionList(account_id)
     try:
         client.request(r)
         last_transaction_id = int(r.response['lastTransactionID'])
@@ -21,14 +30,12 @@ def get_last_transaction_id(accountID):
         print(f"Error fetching last transaction: {e}")
         return None
 
-def get_transactions_since_id(accountID, transaction_id):
+def get_transactions_since_id(account_id, transaction_id):
     """Function to get transactions since a specified transaction ID"""
     params = {
         "id": transaction_id
     }
-    
-    r = trans.TransactionsSinceID(accountID=accountID, params=params)
-    
+    r = trans.TransactionsSinceID(accountID=account_id, params=params)
     try:
         client.request(r)
         return r.response  # Return the fetched transactions
@@ -45,7 +52,6 @@ def log_transaction_details(transactions):
             pl = float(transaction['pl'])
             price = transaction['price']
             order_id = transaction['id']
-
             # Skip logging transactions where 'pl' is 0
             if pl != 0:
                 # Append the order details to the list instead of printing
@@ -55,23 +61,18 @@ def log_transaction_details(transactions):
                     "pl": pl,
                     "price": price
                 })
-
     return logged_transactions  # Return the logged transaction details
 
-
-
 def main():
+    credentials = load_config()
     # Step 1: Get the last transaction ID
-    last_transaction_id = get_last_transaction_id(accountID)
-    
+    last_transaction_id = get_last_transaction_id(credentials['account_id'])
     if last_transaction_id:
         # Step 2: Subtract 50 from the last transaction ID
         adjusted_transaction_id = last_transaction_id - 100
         print(f"Fetching transactions starting from ID: {adjusted_transaction_id}")
-        
         # Step 3: Fetch transactions since the adjusted ID
-        transactions = get_transactions_since_id(accountID, adjusted_transaction_id)
-        
+        transactions = get_transactions_since_id(credentials['account_id'], adjusted_transaction_id)
         if transactions:
             # Return the transactions that have 'units', 'pl' (not zero), and 'price'
             return log_transaction_details(transactions)
@@ -81,3 +82,6 @@ def main():
     else:
         print("Could not retrieve the last transaction ID.")
         return []  # Return an empty list if last transaction ID could not be retrieved
+
+if __name__ == "__main__":
+    main()
