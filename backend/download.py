@@ -1,9 +1,10 @@
+#HERE YOU CAN DOWNLOAD HISTORICAL DATA FOR THE TRADING TRAINING
+
 import tpqoa
 import pandas as pd
 import os
 from datetime import datetime
 
-# Initialize tpqoa with the config file
 api = tpqoa.tpqoa('oanda.cfg')
 
 # Define the instrument and date range
