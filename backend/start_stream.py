@@ -19,6 +19,7 @@ from get_trades import get_active_trades
 import requests
 import numpy as np
 from datetime import datetime
+import configparser
 
 # upcoming_events = []
 history_data = []
@@ -27,8 +28,25 @@ app = Flask(__name__)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-accountID = "101-011-29517098-001"
-client = oandapyV20.API(access_token="42f110c2d99aee8e029b112fb90def99-0c621211f1009bac68c51ff13b2202f3")
+def load_config():
+    """Function to load OANDA credentials from config file"""
+    config = configparser.ConfigParser()
+    config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "oanda.cfg")
+    config.read(config_file)
+    
+    return {
+        "account_id": config['oanda']['account_id'],
+        "access_token": config['oanda']['access_token']
+    }
+
+# Load credentials from config file
+credentials = load_config()
+
+# Initialize APIs with credentials from config
+api = tpqoa.tpqoa("oanda.cfg")
+accountID = credentials['account_id']
+client = oandapyV20.API(access_token=credentials['access_token'])
+balance_data = {'balance': 0.0}
 
 balance_data = {'balance': 0.0}
 
@@ -40,7 +58,6 @@ csv_url_live_price = "http://16.170.247.104:8000/resampled_data.csv"
 
 data_cache = []
 live_price_cache = None
-api = tpqoa.tpqoa("oanda.cfg") 
 
 # volatility_threshold = 1.1568
 volatility_threshold = 0.1
