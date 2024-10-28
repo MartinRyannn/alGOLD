@@ -18,55 +18,44 @@ import mplfinance as mpf
 class HistoricalChartApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.api = tpqoa.tpqoa('oanda.cfg')  # Initialize tpqoa API
+        self.api = tpqoa.tpqoa('oanda.cfg')
         
-        # Set up the main layout
         self.setWindowTitle("Historical Chart Viewer")
         main_layout = QVBoxLayout()
 
-        # Set up form inputs
         form_layout = QFormLayout()
         
-        # Dropdown for Instrument
         self.instrument_dropdown = QComboBox()
         self.instrument_dropdown.addItems(["XAU_USD", "EUR_USD", "CAD_USD"])
         form_layout.addRow(QLabel("Instrument:"), self.instrument_dropdown)
         
-        # Start date picker
         self.start_date_picker = QDateEdit(calendarPopup=True)
-        self.start_date_picker.setDate(QDate.currentDate())  # Default to today
-        self.start_date_picker.dateChanged.connect(self.sync_end_date)  # Sync end date
+        self.start_date_picker.setDate(QDate.currentDate())
+        self.start_date_picker.dateChanged.connect(self.sync_end_date)
         form_layout.addRow(QLabel("Start Date:"), self.start_date_picker)
         
-        # End date picker (default to same as start date)
         self.end_date_picker = QDateEdit(calendarPopup=True)
-        self.end_date_picker.setDate(QDate.currentDate())  # Default to today
+        self.end_date_picker.setDate(QDate.currentDate())
         form_layout.addRow(QLabel("End Date:"), self.end_date_picker)
 
-        # Period input (numeric only)
         self.period_input = QLineEdit()
         self.period_input.setPlaceholderText("Enter period in minutes (e.g., 1 for M1)")
-        self.period_input.setValidator(self.period_input.validator())  # Accept only numbers
+        self.period_input.setValidator(self.period_input.validator()) 
         form_layout.addRow(QLabel("Period (minutes):"), self.period_input)
 
-        # Submit button to fetch and plot data
         self.submit_button = QPushButton("Load Data")
         self.submit_button.clicked.connect(self.load_and_plot_data)
         form_layout.addWidget(self.submit_button)
 
-        # Add form layout to the main layout
         main_layout.addLayout(form_layout)
 
-        # Set up plot area
         self.fig, self.ax = plt.subplots(figsize=(10, 5))
         self.canvas = FigureCanvas(self.fig)
         main_layout.addWidget(self.canvas)
 
-        # Add toolbar
         toolbar = NavigationToolbar(self.canvas, self)
         main_layout.addWidget(toolbar)
 
-        # Set central widget and layout
         container = QWidget()
         container.setLayout(main_layout)
         self.setCentralWidget(container)
@@ -82,16 +71,14 @@ class HistoricalChartApp(QMainWindow):
         end_date = self.end_date_picker.date().toString("yyyy-MM-dd")
         period = self.period_input.text()
 
-        # Validate that all fields are filled
         if not period.isdigit():
             self.show_error_message("Please enter a valid numeric period.")
             return
 
         try:
             period_minutes = int(period)
-            granularity = f'M{period_minutes}'  # Example: M1, M5, M15
+            granularity = f'M{period_minutes}'
 
-            # Fetch historical data
             data = self.api.get_history(
                 instrument=instrument,
                 start=start_date + "T00:00:00",
@@ -104,9 +91,8 @@ class HistoricalChartApp(QMainWindow):
             if data.empty:
                 self.show_error_message("No data available for the selected date range.")
             else:
-                # Reset index to make 'time' a column if needed
                 if 'time' not in data.columns:
-                    data.reset_index(inplace=True)  # Ensure index is a column named 'time'
+                    data.reset_index(inplace=True) 
                 
                 # Plot the data
                 self.plot_data(data)
