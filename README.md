@@ -1,4 +1,4 @@
-# OANDA Trading Platform Setup Guide (macOS)
+# algold Setup Guide (macOS)
 
 ## Prerequisites
 - MacOS operating system
