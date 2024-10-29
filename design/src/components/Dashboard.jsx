@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../styles/dashboardStyles.scss';
 import logo from '../images/alGOLD2.png';
 import Calendar from './Calendar';
+import ScreenSizeProtection from '../extras/ScreenSizeProtection.jsx';
 import { Line } from 'react-chartjs-2';
 import moment from 'moment';
 import Tools from '../extras/Tools.jsx';
@@ -434,15 +435,15 @@ const Dashboard = () => {
       });
       
       setUnrealizedPL(0);
-      setLivePrice(0); // Reset unrealized PL
-      setProfitLoss(0); // Reset profit/loss
-      setBalance(null); // Reset balance
+      setLivePrice(0); 
+      setProfitLoss(0);
+      setBalance(null);
       setConsoleLogs([]);
       setTradeHistory([]);
       setVolatility(0);
       setActiveTrades([]);
-      setPivotPoints([]); // Clear console logs
-      setLastTimestamp(null); // Reset last timestamp
+      setPivotPoints([]);
+      setLastTimestamp(null); 
     }
   
     return () => {
@@ -491,11 +492,12 @@ const getColorByType = (type) => {
   }
 };
 const handleToggleTools = () => {
-  setShowTools(prev => !prev); // Toggle the visibility of the tools
+  setShowTools(prev => !prev);
 };
 
   return (
     <div className="dashboardContainer">
+      <ScreenSizeProtection />
       <Tools showTools={showTools} setShowTools={setShowTools} />
       <div className="dashHeader">
         <img src={logo} alt="Logo" className="dashLogo" />
@@ -591,17 +593,13 @@ const handleToggleTools = () => {
       {activeTrades.length > 0 ? (
         activeTrades.map((trade, index) => (
           <div className="activeBox" key={index}>
-            {/* Determine direction based on currentUnits */}
             <div className="activeDir">
               {trade.currentUnits > 0 ? 'LONG' : 'SHORT'}
             </div>
-            
-            {/* Display PL, green for positive, red for negative */}
             <div className="activePL" style={{ color: trade.unrealizedPL > 0 ? 'green' : 'red' }}>
               {trade.unrealizedPL}
             </div>
             
-            {/* Display currentUnits */}
             <div className="activeUnits">{trade.currentUnits}</div>
           </div>
         ))
@@ -611,7 +609,6 @@ const handleToggleTools = () => {
     </div>
           <div className="logBox algo">
             <div className="logBoxTitle">PIVOT POINTS</div>
-            {/* <div className="pivotHeading">Pivot Points</div> */}
             <div className="pivotPointsList">
               {Object.keys(pivotPoints).length > 0 ? (
                 <>
@@ -643,11 +640,11 @@ const handleToggleTools = () => {
   {tradeHistory.length > 0 ? (
     tradeHistory.slice().reverse().map((trade, index) => (
       <div className="historyBox" key={index}>
-        <div className="historyUnits">{trade.units}</div> {/* Adjust 'units' as per your API */}
+        <div className="historyUnits">{trade.units}</div> 
         <div className="historyPL" style={{ color: trade.pl > 0 ? 'green' : 'red' }}>
-          {trade.pl} {/* Adjust 'pl' as per your API */}
+          {trade.pl} 
         </div>
-        <div className="historyPrice">{trade.price}</div> {/* Adjust 'price' as per your API */}
+        <div className="historyPrice">{trade.price}</div>
       </div>
     ))
   ) : (
