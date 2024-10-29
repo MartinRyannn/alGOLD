@@ -39,10 +39,8 @@ def load_config():
         "access_token": config['oanda']['access_token']
     }
 
-# Load credentials from config file
 credentials = load_config()
 
-# Initialize APIs with credentials from config
 api = tpqoa.tpqoa("oanda.cfg")
 accountID = credentials['account_id']
 client = oandapyV20.API(access_token=credentials['access_token'])
@@ -53,13 +51,12 @@ balance_data = {'balance': 0.0}
 
 
 local_csv_file = 'live_price_data.csv'
-csv_url_candles = "http://16.170.232.110:8000/resampled_data.csv"
+csv_url_candles = "http://13.60.228.39:8000/resampled_data.csv"
 csv_url_live_price = "http://16.170.247.104:8000/resampled_data.csv"
 
 data_cache = []
 live_price_cache = None
 
-# volatility_threshold = 1.1568
 volatility_threshold = 0.1
 
 
@@ -86,8 +83,8 @@ take_profit_price = None
 cooldown_period = 250 
 last_trade_time = None
 
-tvwap_window = 300  # 2-minute window
-tvwap_prices = []  # Store prices for the window
+tvwap_window = 300
+tvwap_prices = []
 tvwap_times = []
 
 last_csv_update_time = None
@@ -142,19 +139,15 @@ def update_volatility_from_live_price():
     """Updates the volatility based on live price data fetched every 3 seconds."""
     global current_volatility
 
-    # Ensure there's enough live price data to calculate volatility
-    if len(tvwap_prices) < 20:  # Require at least 10 data points for better accuracy
+    if len(tvwap_prices) < 20:
         current_volatility = None
         return
 
-    # Calculate percentage changes between consecutive prices for the last 10 candles
     returns = [(tvwap_prices[i] - tvwap_prices[i-1]) / tvwap_prices[i-1] for i in range(1, len(tvwap_prices[-10:]))]
 
-    # Debugging: Print live prices and returns
     print(f"Live Prices: {tvwap_prices[-20:]}")
     print(f"Calculated Returns from Live Prices: {returns[-20:]}")
 
-    # Calculate volatility as the standard deviation of the returns, scaled by 1000
     current_volatility = np.std(returns)
 
     print(f"Updated Volatility (Live Data, Scaled): {round(current_volatility, 4) * 10000}")
@@ -239,7 +232,6 @@ def calculate_breakout(data):
 
 def test_api_connection():
     try:
-        # Test the API connection by getting account details
         account_details = api.get_account_summary()
         print(f"API Connection Test - Account Details: {account_details}")
         return True
@@ -250,7 +242,6 @@ def test_api_connection():
 def generate_signal(current_price, breakout_high, breakout_low):
     global last_signal, active_order
 
-    # Check for open trades
     open_trades = fetch_open_trades()
 
     if open_trades:
@@ -277,29 +268,22 @@ def calculate_time_vwap(new_data):
     """Updates the time-weighted VWAP using the new data"""
     global time_weighted_vwap, time_weighted_sum, last_timestamp
     
-    # Extract the latest row of price data
     row = new_data.iloc[-1]
     
-    # Get the current timestamp and typical price
     timestamp = pd.to_datetime(row['timestamp'])
     typical_price = calculate_typical_price(row)
     
     if last_timestamp is None:
-        # If no previous timestamp, just store the current one
         last_timestamp = timestamp
-        return time_weighted_vwap  # First data point, no VWAP yet
+        return time_weighted_vwap 
 
-    # Calculate time difference between this and the last price update (in seconds)
     time_interval = (timestamp - last_timestamp).total_seconds()
     
-    # Update time-weighted VWAP calculation
     time_weighted_sum += typical_price * time_interval
-    total_time = (timestamp - pd.to_datetime(new_data.iloc[0]['timestamp'])).total_seconds()  # Total time from start
+    total_time = (timestamp - pd.to_datetime(new_data.iloc[0]['timestamp'])).total_seconds()
     
-    # Update the T-VWAP
     time_weighted_vwap = time_weighted_sum / total_time if total_time > 0 else time_weighted_vwap
     
-    # Update the last timestamp
     last_timestamp = timestamp
     
     return time_weighted_vwap
@@ -307,14 +291,12 @@ def calculate_time_vwap(new_data):
 def calculate_t_vwap():
     global tvwap_prices, tvwap_times
 
-    if len(tvwap_prices) < 2:  # Ensure we have enough data for at least two candles
+    if len(tvwap_prices) < 2:
         return 0.0
 
     time_diffs = [tvwap_times[i+1] - tvwap_times[i] for i in range(len(tvwap_times) - 1)]
     
-    # Total time difference for weighting
-    total_time = sum([td.total_seconds() for td in time_diffs])  # Convert to seconds
-
+    total_time = sum([td.total_seconds() for td in time_diffs])
     # If the total time is zero (guard against division by zero)
     if total_time == 0:
         return 0.0
@@ -349,7 +331,6 @@ def fetch_live_price():
                 timestamp = pd.to_datetime(new_data['timestamp'].iloc[-1])
                 t_vwap = calculate_t_vwap()
 
-                # Prepare current data to compare with last written data
                 current_data = {
                     'timestamp': timestamp,
                     'open': new_data['open'].iloc[-1],
@@ -375,7 +356,6 @@ csv_lock = threading.Lock()
 
 def write_to_csv(timestamp, new_data, live_price_cache, t_vwap):
     """Writes the data to the CSV file, ensuring no duplicate entries and thread safety."""
-    # Prepare the data row
     row_data = pd.DataFrame({
         'timestamp': [timestamp],
         'open': [new_data['open'].iloc[-1]],
@@ -385,20 +365,15 @@ def write_to_csv(timestamp, new_data, live_price_cache, t_vwap):
         't_vwap': [t_vwap]
     })
 
-    # Use lock to ensure only one thread writes at a time
     with csv_lock:
-        # Check if the file exists and we need to avoid duplicate entries
         if os.path.exists(local_csv_file):
-            # Read the last row to check for duplication
             last_row = pd.read_csv(local_csv_file).tail(1)
             if not last_row.empty and last_row['timestamp'].iloc[-1] == timestamp:
                 print(f"Duplicate entry detected for timestamp: {timestamp}. Skipping write.")
-                return  # Exit if the timestamp already exists
+                return
 
-        # Determine write mode: append or write new file
         mode = 'a' if os.path.exists(local_csv_file) else 'w'
 
-        # Write the new row to the CSV
         row_data.to_csv(local_csv_file, mode=mode, header=(mode == 'w'), index=False)
         print(f"CSV updated: {timestamp}, Price: {live_price_cache}, T-VWAP: {t_vwap}")
 
@@ -413,7 +388,7 @@ def check_signals(current_price, t_vwap):
         volatility = full_data['close'].std()
         print(f"Volatility (Std Dev): {volatility:.2f}")
 
-        if volatility < volatility_threshold:  # Adjusting the threshold dynamically
+        if volatility < volatility_threshold:
             print(f"Volatility too low ({volatility:.2f}), skipping the trade.")
             return
 
@@ -428,7 +403,6 @@ def check_signals(current_price, t_vwap):
     if breakout_high is None or breakout_low is None:
         return
 
-    # Generate signal based on T-VWAP
     if current_price > t_vwap and current_price > breakout_high:
         signal = 'buy'
     elif current_price < t_vwap and current_price < breakout_low:
@@ -517,10 +491,8 @@ def fetch_live_price():
                 candles_left = lag_period - price_update_count
                 print(f"Candles until breakout recalculation: {candles_left}")
 
-                # Update volatility with live data
                 update_volatility_from_live_price()
 
-                # Call check_signals with both live price and T-VWAP
                 check_signals(live_price_cache, t_vwap)
 
                 time.sleep(1)
@@ -538,7 +510,7 @@ def background_data_fetcher():
     """Thread for continuously fetching candle data and updating volatility"""
     while True:
         fetch_and_update_data()
-        time.sleep(1)  # Adjust the frequency of fetching data (in seconds)
+        time.sleep(1) 
 
 
 def background_live_price_fetcher():
@@ -589,20 +561,17 @@ def execute_trade(signal, current_price, data):
     print(f"Executing {signal.upper()} trade at {current_price}")
 
 
-    # Check for open trades before placing a new one
     open_trades = fetch_open_trades()
 
     if open_trades:
         print("Cannot place a new trade. There is already an active trade.")
         return
 
-    # Execute the appropriate trade based on the signal
     if signal == 'buy':
-        place_buy_order(current_price, data)  # Pass data here
+        place_buy_order(current_price, data) 
     elif signal == 'sell':
         place_sell_order(current_price, data)
 
-    # Update last_trade_time
     last_trade_time = datetime.now()
 
 
