@@ -51,7 +51,7 @@ balance_data = {'balance': 0.0}
 
 
 local_csv_file = 'live_price_data.csv'
-csv_url_candles = "http://13.60.228.39:8000/resampled_data.csv"
+csv_url_candles = "http://16.171.172.161:8000/resampled_data.csv"
 csv_url_live_price = "http://16.170.247.104:8000/resampled_data.csv"
 
 data_cache = []
